@@ -63,3 +63,43 @@ It took us a moment to understand the difference between the voltage the supply 
 ### Takeaway
 
 We learned that powering up a new board isn't just about setting the right voltage - setting a safe current limit first is just as important, since it's what actually protects the hardware.
+## Day 3 - Oscilloscope Basics
+
+Today's focus was the oscilloscope. Our team doesn't have physical access to one this week, so we covered it through theory, and used a Python script (numpy + matplotlib) to simulate what a clean vs noisy signal looks like on a scope screen.
+
+We went over the three main scope concepts:
+- **Timebase** - how much time each horizontal division on screen represents
+- **Triggering** - how the scope decides when to start drawing the waveform so it looks stable instead of jumping around
+- **Probing** - how the scope actually connects to a circuit, and how a bad probe connection can distort what you're seeing
+
+To make this more concrete, we generated a simulated 1kHz square wave (0-5V) and compared it to the same wave with small random noise added on top (about ±0.2V). Seeing the two side by side made it much easier to understand what "noise on a line" actually looks like versus just hearing the term.
+
+Looking at the two plots, the clean signal had sharp, even edges, while the noisy one had a slightly fuzzy, jagged look around the same edges - even though both were technically the "same" signal underneath.
+
+We found triggering the hardest part to picture without an actual scope to try it on, but the concept made sense in theory - the scope needs a stable reference point (like a rising edge) to draw a steady picture instead of a flickering mess.
+
+## Day 4 - Logging Data Automatically
+
+Today's task was learning to log data automatically instead of manually taking readings one at a time. Since our team's hardware access was limited this week, we used a Python script to generate a simulated voltage log, representing what a real 5-minute logging session on a 5V rail would look like.
+
+The script created 300 readings (one per second, so 5 minutes total), each with a small random wobble added to simulate natural ripple, plus a small dip near the end to simulate a minor real-world fault.
+
+We opened the resulting CSV file in Excel just to sanity-check it - confirmed it had a timestamp column, a voltage column, and 300 rows that looked reasonable (values clustering around 5V).
+
+This gave us a working example of what a logging tool's output actually looks like, which we'll replace with real SmuView-logged data once hardware access allows.
+
+## Day 5 - Analyzing the Logged Data
+
+Today we analyzed the CSV file from Day 4 using Python (pandas for the numbers, matplotlib for the chart).
+
+**Results:**
+- Expected (nominal) voltage: 5.0 V
+- Measured average: 4.97 V
+- Min / Max: 4.82 V / 5.03 V
+- Ripple (max - min): 0.21 V
+
+The average was very close to the expected 5V, which is a good sign overall. The ripple was a little higher than a perfectly clean rail would show, mainly because of a dip we noticed near the end of the log.
+
+Interestingly, the script's automatic anomaly check (anything more than 5% off nominal) didn't flag this dip as a problem, but looking at the actual graph, there's a clear visible sag near the end. This taught us something useful: automated checks are helpful, but they can miss things that are obvious just by looking at the data visually - so both matter.
+
+We saved the graph as `rail_plot.png`, showing voltage over the full 5-minute window with the dip clearly visible near the end.
